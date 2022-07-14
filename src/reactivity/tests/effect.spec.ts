@@ -17,8 +17,12 @@ describe('effect', () => {
 
     expect(nextAge).toBe(11);
 
-    user.age++;
+    // user.age++;
 
-    expect(nextAge).toBe(12);
+    // expect(nextAge).toBe(12);
+
+    user.age += 3;
+
+    expect(nextAge).toBe(14);
   })
 })
