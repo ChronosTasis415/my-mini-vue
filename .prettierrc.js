@@ -1,6 +1,6 @@
 module.exports = {
   arrowParens: "avoid",
-  bracketSameLine: false,
+  // bracketSameLine: false,
   bracketSpacing: true,
   embeddedLanguageFormatting: "auto",
   htmlWhitespaceSensitivity: "css",

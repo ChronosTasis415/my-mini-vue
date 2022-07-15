@@ -1,7 +1,11 @@
+import { extend } from "../../shared/index";
 let activeEffect;
 // 将传入的fn 进行包装 变成类的私有变量 外部访问不到(只能在类中访问)
 class ReactiveEffect {
   private _fn;
+  deps = [];
+  active = true;
+  onStop?: () => void;
   constructor(fn, public scheduler?) {
     this._fn = fn;
   }
@@ -10,26 +14,30 @@ class ReactiveEffect {
     activeEffect = this;
     return this._fn();
   }
+
+  stop() {
+    // 清空一次后 避免多次遍历
+    if (this.active) {
+      cleanupEffect(this);
+      if (this.onStop) {
+        this.onStop();
+      }
+      this.active = false;
+    }
+  }
 }
 
-
-
-export function effect(fn, options:any = {}) {
-  const {scheduler } = options;
-  const _effect = new ReactiveEffect(fn, scheduler);
-
-  // 首次执行的时候 只执行runner 不管有没有scheduler
-  _effect.run();
-  
-  // bind 绑定实例对象 
-  return _effect.run.bind(_effect);
+function cleanupEffect(effect) {
+  effect.deps.forEach((dep: any) => {
+    // Set
+    dep.delete(effect);
+  });
 }
 
 const targetMap = new Map();
 
 // 收集依赖
 export function track(target, key) {
-
   // 需要收集的fn不可重复 所以用Set
   // target -> key -> map
   let depsMap = targetMap.get(target);
@@ -49,6 +57,7 @@ export function track(target, key) {
   }
 
   dep.add(activeEffect);
+  activeEffect?.deps.push(dep);
 
   // targetMap  {{target} => Map(1)}
   // depsMap { key => Set(1) }
@@ -67,4 +76,23 @@ export function trigger(target, key) {
       dep.run();
     }
   }
+}
+
+export function effect(fn, options: any = {}) {
+  const _effect = new ReactiveEffect(fn, options.scheduler);
+
+  extend(_effect, options); // _effect.onStop = onStop;
+  // 首次执行的时候 只执行runner 不管有没有scheduler
+  _effect.run();
+
+  // bind 绑定实例对象
+  const runner: any = _effect.run.bind(_effect);
+
+  runner.effect = _effect;
+
+  return runner;
+}
+
+export function stop(runner) {
+  runner.effect.stop();
 }
