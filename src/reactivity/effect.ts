@@ -1,5 +1,6 @@
 import { extend } from "../../shared/index";
 let activeEffect;
+let shouldTrack;
 // 将传入的fn 进行包装 变成类的私有变量 外部访问不到(只能在类中访问)
 class ReactiveEffect {
   private _fn;
@@ -11,8 +12,20 @@ class ReactiveEffect {
   }
 
   run() {
+    // 执行fn 意味着执行get操作 因为fn中有getter
+
+    if (!this.active) {
+      return this._fn();
+    }
+
+    shouldTrack = true;
     activeEffect = this;
-    return this._fn();
+    const result = this._fn();
+    // reset
+    shouldTrack = false;
+
+    
+    return result;
   }
 
   stop() {
@@ -32,12 +45,16 @@ function cleanupEffect(effect) {
     // Set
     dep.delete(effect);
   });
+
+  effect.deps.length = 0;
 }
 
 const targetMap = new Map();
 
 // 收集依赖
 export function track(target, key) {
+  if (!isTracking()) return;
+
   // 需要收集的fn不可重复 所以用Set
   // target -> key -> map
   let depsMap = targetMap.get(target);
@@ -56,12 +73,14 @@ export function track(target, key) {
     depsMap.set(key, dep);
   }
 
+  if (dep.has(activeEffect)) return;
+  
   dep.add(activeEffect);
-  activeEffect?.deps.push(dep);
+  activeEffect.deps.push(dep);
+}
 
-  // targetMap  {{target} => Map(1)}
-  // depsMap { key => Set(1) }
-  //dep [ReactiveEffect]
+function isTracking() {
+  return shouldTrack && activeEffect !== undefined;
 }
 
 // 触发依赖
