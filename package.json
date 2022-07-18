@@ -6,15 +6,27 @@
   "author": "zhangleipeng <547493397@qq.com>",
   "license": "MIT",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "prepare": "husky install"
   },
   "devDependencies": {
     "@babel/core": "^7.18.6",
     "@babel/preset-env": "^7.18.6",
     "@babel/preset-typescript": "^7.18.6",
+    "@commitlint/cli": "^17.0.3",
+    "@commitlint/config-conventional": "^17.0.3",
     "@types/jest": "^28.1.5",
     "babel-jest": "^28.1.2",
+    "husky": "^8.0.1",
     "jest": "^28.1.2",
+    "lint-staged": "^13.0.3",
     "typescript": "^4.7.4"
+  },
+  "lint-staged": {
+    "src/**/*.{js,ts,jsx,tsx,json}": [
+      "prettier --write",
+      "eslint",
+      "git add"
+    ]
   }
 }
