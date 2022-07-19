@@ -14,4 +14,20 @@ describe("reactive", () => {
     expect(isReactive(obeserved)).toBe(true);
     expect(isReactive(original)).toBe(false);
   });
+
+  // 嵌套的响应式对象
+  it("nested reactive", () => {
+    const original = {
+      nested: {
+        foo: 1,
+      },
+      array: [{ bar: 2 }],
+    };
+
+    const observed = reactive(original);
+
+    expect(isReactive(observed.nested)).toBe(true);
+    expect(isReactive(observed.array)).toBe(true);
+    expect(isReactive(observed.array[0])).toBe(true);
+  });
 });

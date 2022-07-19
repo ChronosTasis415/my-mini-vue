@@ -1,5 +1,8 @@
+/** @format */
+
+import { isObject } from "../../shared";
 import { track, trigger } from "./effect";
-import { ReactiveFlags } from "./reactive";
+import { ReactiveFlags, reactive, readonly } from "./reactive";
 
 // 只执行一次 后面创建响应式对象时用缓存值。
 const get = createGetter();
@@ -8,13 +11,19 @@ const readonlyGet = createGetter(true);
 // 高阶函数 返回fn
 function createGetter(isReadonly = false) {
   return function get(target, key) {
-    const res = Reflect.get(target, key);
     if (key === ReactiveFlags.IS_REACTIVE) {
       return !isReadonly;
     }
 
     if (key === ReactiveFlags.IS_READONLY) {
       return isReadonly;
+    }
+
+    const res = Reflect.get(target, key);
+
+    // 检查res是不是object
+    if (isObject(res)) {
+      return isReadonly ? readonly(res) : reactive(res);
     }
 
     if (!isReadonly) {

@@ -19,12 +19,12 @@ class ReactiveEffect {
     }
 
     shouldTrack = true;
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     activeEffect = this;
     const result = this._fn();
     // reset
     shouldTrack = false;
 
-    
     return result;
   }
 
@@ -74,7 +74,7 @@ export function track(target, key) {
   }
 
   if (dep.has(activeEffect)) return;
-  
+
   dep.add(activeEffect);
   activeEffect.deps.push(dep);
 }
