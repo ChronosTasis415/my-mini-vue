@@ -5,6 +5,9 @@ class RefImpl {
   private _value: any;
   private dep;
   private _originalRaw;
+
+  //创建之初就声明是否为ref
+  public __v_isRef = true;
   constructor(value: any) {
     // 在初始化的时候 判断value的属性是否为object
     this._originalRaw = value;
@@ -35,4 +38,24 @@ function trackRefEffects(effect) {
 
 export function ref(value) {
   return new RefImpl(value);
+}
+
+export function isRef(ref) {
+  return !!ref.__v_isRef;
+}
+
+export function unRef(ref) {
+  return isRef(ref) ? ref.value : ref;
+}
+
+export function proxyRefs(object) {
+  return new Proxy(object, {
+    get(target, key) {
+      return unRef(Reflect.get(target, key));
+    },
+
+    set(target, key, value) {
+      return Reflect.set(target, key, isRef(value) ? value : ref(value));
+    },
+  });
 }
