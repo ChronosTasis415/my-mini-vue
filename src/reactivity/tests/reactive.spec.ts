@@ -6,10 +6,11 @@ describe("reactive", () => {
 
     // 生成一个proxy对象
     const obeserved = reactive(original);
+    original.foo = 2;
 
     expect(obeserved).not.toBe(original);
 
-    expect(obeserved.foo).toBe(1);
+    expect(obeserved.foo).toBe(2);
 
     expect(isReactive(obeserved)).toBe(true);
     expect(isReactive(original)).toBe(false);

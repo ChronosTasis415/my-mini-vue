@@ -2,7 +2,7 @@ import { extend } from "../../shared/index";
 let activeEffect;
 let shouldTrack;
 // 将传入的fn 进行包装 变成类的私有变量 外部访问不到(只能在类中访问)
-class ReactiveEffect {
+export class ReactiveEffect {
   private _fn;
   deps = [];
   active = true;
