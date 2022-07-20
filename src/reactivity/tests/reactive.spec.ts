@@ -1,4 +1,4 @@
-import { isReactive, reactive } from "../reactive";
+import { isReactive, reactive, isProxy } from "../reactive";
 
 describe("reactive", () => {
   it("happy path", () => {
@@ -13,6 +13,8 @@ describe("reactive", () => {
 
     expect(isReactive(obeserved)).toBe(true);
     expect(isReactive(original)).toBe(false);
+    // isProxy 检测对象是否由 reactive或者readonly创建
+    expect(isProxy(obeserved)).toBe(true);
   });
 
   // 嵌套的响应式对象
