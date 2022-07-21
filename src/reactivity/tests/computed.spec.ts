@@ -28,12 +28,12 @@ describe("computed", () => {
     expect(cValue.value).toBe(1);
     expect(getter).toHaveBeenCalledTimes(1);
 
-    // should not computed again
+    // should not computed again 读取缓存
     cValue.value;
     expect(getter).toHaveBeenCalledTimes(1);
 
     // should not compute until needed
-    value.foo = 2;
+    value.foo = 2; // 触发effect的fn 不触发computed的fn
     expect(getter).toHaveBeenCalledTimes(1);
 
     // now it should compute
