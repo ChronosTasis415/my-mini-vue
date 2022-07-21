@@ -49,6 +49,25 @@ trigger 扣动扳机
 - deps = depsMap.get(key)，获取 key 对应的 effects
 - 遍历 deps 中的每个 dep 执行 run 方法，即执行用户的动作 fn.
 
-需要注意！
-当我们执行 get 时，只执行了 track。
-当我们执行 set 时，先执行 track 再执行 trigger。
+### ref
+
+按照约定，proxy 创建的是响应式对象。普通类型的响应式如何做呢，答案就是 ref。
+
+```
+const reactiveObj = new Proxy(obj, handler);
+const refVar = new SomeClass(get value(), set value())
+```
+
+ref 响应式的实现也是 getter 收集依赖；setter 触发依赖。通过一个 class 巧妙的封装。
+
+### computed
+
+vue 中的 computed 功能包括
+
+- 缓存旧值：一旦根据依赖值计算出结果不需要重新计算，直接返回旧值。
+- 懒计算：需要时再进行计算。
+
+缓存旧值：利用了一个开关功能和一个变量缓存计算值。
+懒计算：当我们首次获取 computedValue 时，开关是打开的(\_ditry == true)。执行 computed 的 getter(fn),缓存值，关闭开关，返回值。
+当再次获取时，开关是关闭的，直接返回缓存值。
+当我们再次给 computed 的依赖项赋值时，响应式对象的 set 执行完，执行 trigger，进而执行 effect 的 scheduler 将开关打开，再次 computed 的 getter，执行 fn 返回最新值。
