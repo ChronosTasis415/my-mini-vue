@@ -1,6 +1,6 @@
 /** @format */
 
-import { extend, isObject } from "../../shared";
+import { extend, isObject } from "../shared/index";
 import { track, trigger } from "./effect";
 import { ReactiveFlags, reactive, readonly } from "./reactive";
 
