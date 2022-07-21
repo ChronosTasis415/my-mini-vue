@@ -1,13 +1,15 @@
 {
   "name": "my-mini-vue",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "lib/guide-mini-vue.cjs.js",
+  "module": "lib/guide-mini-vue.es.js",
   "repository": "https://github.com/zhangleipeng/my-mini-vue.git",
   "author": "zhangleipeng <547493397@qq.com>",
   "license": "MIT",
   "scripts": {
     "test": "jest",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "build": "rollup --config rollup.config.js"
   },
   "devDependencies": {
     "@babel/core": "^7.18.6",
@@ -15,6 +17,7 @@
     "@babel/preset-typescript": "^7.18.6",
     "@commitlint/cli": "^17.0.3",
     "@commitlint/config-conventional": "^17.0.3",
+    "@rollup/plugin-typescript": "^8.3.3",
     "@types/jest": "^28.1.5",
     "@typescript-eslint/eslint-plugin": "^5.30.7",
     "@typescript-eslint/parser": "^5.30.7",
@@ -25,6 +28,7 @@
     "jest": "^28.1.2",
     "lint-staged": "^13.0.3",
     "prettier": "^2.7.1",
+    "rollup": "^2.77.0",
     "typescript": "^4.7.4"
   },
   "lint-staged": {
