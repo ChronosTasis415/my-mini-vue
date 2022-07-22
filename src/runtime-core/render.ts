@@ -26,7 +26,7 @@ function processElement(vnode, container) {
 
 function mountElement(vnode, container) {
   const { type, props, children } = vnode;
-  const el = document.createElement(type);
+  const el = (vnode.el = document.createElement(type));
   if (typeof children === "string") {
     el.textContent = children;
   } else if (isArray(children)) {
@@ -49,18 +49,22 @@ function processComponent(vnode, container) {
   mountComponent(vnode, container);
 }
 
-function mountComponent(vnode, container) {
-  const instance = createComponentInstance(vnode);
+function mountComponent(initialVnode, container) {
+  const instance = createComponentInstance(initialVnode);
 
   setupComponent(instance);
-  setupRenderEffect(instance, container);
+  setupRenderEffect(instance, initialVnode, container);
 }
 
-function setupRenderEffect(instance, container) {
-  const subTree = instance.render();
+function setupRenderEffect(instance, initialVnode, container) {
+  const { proxy } = instance;
+  const subTree = instance.render.call(proxy);
 
-  // vnode -> patch
-  // vnode -> element -> mount
+  // initialVnode -> patch
+  // initialVnode -> element -> mount
 
   patch(subTree, container);
+
+  //  所有的element都已经渲染完成
+  initialVnode.el = subTree.el;
 }
