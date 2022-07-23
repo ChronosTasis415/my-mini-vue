@@ -9,3 +9,6 @@ export const hasChanged = (val, newVal) => {
 };
 
 export const isArray = Array.isArray;
+
+export const hasOwn = (obj, key) =>
+  Object.prototype.hasOwnProperty.call(obj, key);
