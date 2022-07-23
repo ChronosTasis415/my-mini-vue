@@ -1,3 +1,4 @@
+import { isObject } from "../shared/index";
 import {
   mutableHandler,
   readonlyHandler,
@@ -8,6 +9,10 @@ export const enum ReactiveFlags {
   IS_READONLY = "is_readonly",
 }
 function createActiveObject(raw, baseHandlers) {
+  if (!isObject(raw)) {
+    console.warn(`raw: ${raw} is not a project`);
+    return raw;
+  }
   return new Proxy(raw, baseHandlers);
 }
 

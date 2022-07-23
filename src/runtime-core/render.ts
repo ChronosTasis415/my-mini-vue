@@ -9,7 +9,7 @@ export function render(vnode, container) {
 function patch(vnode, container) {
   //处理组件
   // 区分是组件还是element
-  const { type, shapeFlag } = vnode;
+  const { shapeFlag } = vnode;
 
   if (shapeFlag & ShapeFlags.ELEMENT) {
     processElement(vnode, container);
@@ -34,7 +34,14 @@ function mountElement(vnode, container) {
     mountChildren(vnode, el);
   }
   for (const key in props) {
-    el.setAttribute(key, props[key]);
+    const val = props[key];
+    const isEvent = (key: string) => /^on[A-Z]/.test(key);
+    if (isEvent(key)) {
+      const eventName = key.slice(2).toLowerCase();
+      el.addEventListener(eventName, val);
+    } else {
+      el.setAttribute(key, val);
+    }
   }
   container.append(el);
 }
