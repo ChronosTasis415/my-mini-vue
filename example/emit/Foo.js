@@ -1,12 +1,14 @@
 import { h } from "../../lib/guide-mini-vue.es.js";
 
 export const Foo = {
-  setup(props) {
+  setup(props, {emit}) {
     console.log(props);
     props.count++;
 
     const emitAdd = () => {
-      //
+      console.log('emit add');
+      // emit('add', 11, 32, 44)
+      emit('add-foo', { a: 1, b: 2 })
     }
 
     return {
@@ -17,7 +19,8 @@ export const Foo = {
   render() {
     const btn =h('button', {
       onClick: this.emitAdd
-    })
-    return h('div', {}, `foo: ${this.count}`)
+    }, 'button')
+    const foo = h('p', {}, 'foo')
+    return h('div', {}, [btn, foo])
   }
 }

@@ -10,7 +10,11 @@ export const App = {
       },
       [
         h('div', {}, 'app'),
-        h(Foo, {})
+        h(Foo, {
+          onAddFoo(res) {
+            console.log('from add', res);
+          }
+        })
       ]
     );
   },
