@@ -1,6 +1,6 @@
-import { isArray } from "../shared/index";
 import { ShapeFlags } from "../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
+import { Fragment, Text } from "./vnode";
 
 export function render(vnode, container) {
   patch(vnode, container);
@@ -9,15 +9,34 @@ export function render(vnode, container) {
 function patch(vnode, container) {
   //处理组件
   // 区分是组件还是element
-  const { shapeFlag } = vnode;
-
-  if (shapeFlag & ShapeFlags.ELEMENT) {
-    processElement(vnode, container);
-  } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-    processComponent(vnode, container);
+  const { type, shapeFlag } = vnode;
+  switch (type) {
+    case Fragment:
+      processFragment(vnode, container);
+      break;
+    case Text:
+      processText(vnode, container);
+      break;
+    default:
+      if (shapeFlag & ShapeFlags.ELEMENT) {
+        processElement(vnode, container);
+      } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+        processComponent(vnode, container);
+      }
+      break;
   }
 }
-
+// 处理text文本节点
+function processText(vnode, contianer) {
+  // 调用createTextVnode后 text 变成了 h(Text, {}, text) 所以text文本就是children
+  const { children } = vnode;
+  const textNode = (vnode.el = document.createTextNode(children));
+  contianer.append(textNode);
+}
+// 处理fragment
+function processFragment(vnode, container) {
+  mountChildren(vnode, container);
+}
 // 处理 element
 function processElement(vnode, container) {
   // init
