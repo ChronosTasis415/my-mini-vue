@@ -106,6 +106,7 @@ export function triggerEffects(deps) {
 }
 
 export function effect(fn, options: any = {}) {
+  console.log("fn", fn);
   const _effect = new ReactiveEffect(fn, options.scheduler);
 
   extend(_effect, options); // _effect.onStop = onStop;

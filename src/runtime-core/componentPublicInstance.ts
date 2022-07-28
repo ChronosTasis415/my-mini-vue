@@ -1,4 +1,5 @@
 import { hasOwn } from "../shared/index";
+import { unRef } from "../reactivity";
 
 const publicPropertiesMap = {
   $el: i => i.vnode.el,
@@ -8,12 +9,9 @@ const publicPropertiesMap = {
 export const PublicInstanceProxyHandler = {
   get({ _: instance }, key) {
     const { setupState, props } = instance;
-    if (key in setupState) {
-      return setupState[key];
-    }
 
     if (hasOwn(setupState, key)) {
-      return setupState[key];
+      return unRef(setupState[key]);
     } else if (hasOwn(props, key)) {
       return props[key];
     }

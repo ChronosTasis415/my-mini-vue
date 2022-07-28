@@ -1,3 +1,4 @@
+import { effect } from "../reactivity/effect";
 import { ShapeFlags } from "../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
 import { createAppAPI } from "./createApp";
@@ -86,16 +87,18 @@ export function createRenderer(options) {
   }
 
   function setupRenderEffect(instance, initialVnode, container) {
-    const { proxy } = instance;
-    const subTree = instance.render.call(proxy);
+    effect(() => {
+      const { proxy } = instance;
+      const subTree = instance.render.call(proxy);
 
-    // initialVnode -> patch
-    // initialVnode -> element -> mount
+      // initialVnode -> patch
+      // initialVnode -> element -> mount
 
-    patch(subTree, container, instance);
+      patch(subTree, container, instance);
 
-    //  所有的element都已经渲染完成
-    initialVnode.el = subTree.el;
+      //  所有的element都已经渲染完成
+      initialVnode.el = subTree.el;
+    });
   }
 
   return {

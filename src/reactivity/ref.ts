@@ -31,6 +31,7 @@ class RefImpl {
 }
 
 function trackRefEffects(effect) {
+  console.log("effect", effect);
   if (isTracking()) {
     trackEffects(effect.dep);
   }
