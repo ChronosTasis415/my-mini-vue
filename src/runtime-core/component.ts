@@ -1,3 +1,4 @@
+import { proxyRefs } from "../reactivity";
 import { emit } from "./componentEmit";
 import { initProps } from "./componentProps";
 import { PublicInstanceProxyHandler } from "./componentPublicInstance";
@@ -12,6 +13,8 @@ export function createComponentInstance(vnode, parent) {
     slots: {},
     provides: parent ? parent.provides : {},
     parent,
+    isMounted: false,
+    subTree: null,
     emit: () => {},
   };
 
@@ -48,7 +51,8 @@ function setupStatefulComponent(instance: any) {
 
 function handleSetupResult(instance, setupResult: any) {
   if (typeof setupResult === "object") {
-    instance.setupState = setupResult;
+    // 直接读取var.value;
+    instance.setupState = proxyRefs(setupResult);
   }
 
   finishComponentSetup(instance);
