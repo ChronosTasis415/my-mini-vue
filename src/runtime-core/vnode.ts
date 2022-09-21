@@ -7,6 +7,8 @@ export function createVNode(type, props?, children?) {
     type,
     props,
     children,
+    next: null, // 用来存储即将到来的更新后的vnode
+    component: null,
     key: props && props.key,
     shapeFlag: getShapeFlags(type),
     el: null,

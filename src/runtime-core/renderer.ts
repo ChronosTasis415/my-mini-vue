@@ -1,6 +1,7 @@
 import { effect } from "../reactivity/effect";
 import { ShapeFlags } from "../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
+import { shouldUpdateComponent } from "./componentUpdateUtils";
 import { createAppAPI } from "./createApp";
 import { Fragment, Text } from "./vnode";
 
@@ -62,8 +63,6 @@ export function createRenderer(options) {
   const EMPTY_OBJ = {};
 
   function patchElement(n1, n2, container, parentComponent, anchor) {
-    console.log("n1", n1);
-    console.log("n2", n2);
     const oldProps = n1.props || EMPTY_OBJ;
     const newProps = n2.props || EMPTY_OBJ;
     const el = (n2.el = n1.el);
@@ -211,7 +210,7 @@ export function createRenderer(options) {
           newIndex = keyToNewIndexMap.get(prevChild.key);
         } else {
           // 旧的key不存在 遍历新的
-          for (let j = s2; j < e2; j++) {
+          for (let j = s2; j <= e2; j++) {
             if (isSameVNodeType(prevChild, c2[j])) {
               newIndex = j;
               break;
@@ -315,11 +314,30 @@ export function createRenderer(options) {
 
   // 处理component
   function processComponent(n1, n2, container, parentComponent, anchor) {
-    mountComponent(n2, container, parentComponent, anchor);
+    if (!n1) {
+      mountComponent(n2, container, parentComponent, anchor);
+    } else {
+      updateComponent(n1, n2);
+    }
+  }
+
+  function updateComponent(n1, n2) {
+    const instance = (n2.component = n1.component);
+    if (shouldUpdateComponent(n1, n2)) {
+      instance.next = n2;
+
+      instance.update();
+    } else {
+      n2.el = n1.el;
+      instance.vnode = n2;
+    }
   }
 
   function mountComponent(initialVnode, container, parentComponent, anchor) {
-    const instance = createComponentInstance(initialVnode, parentComponent);
+    const instance = (initialVnode.component = createComponentInstance(
+      initialVnode,
+      parentComponent
+    ));
 
     setupComponent(instance);
     setupRenderEffect(instance, initialVnode, container, anchor);
@@ -327,7 +345,7 @@ export function createRenderer(options) {
 
   function setupRenderEffect(instance, initialVnode, container, anchor) {
     // element 更新逻辑
-    effect(() => {
+    instance.update = effect(() => {
       if (!instance.isMounted) {
         console.log("init");
         const { proxy } = instance;
@@ -343,6 +361,12 @@ export function createRenderer(options) {
         instance.isMounted = true;
       } else {
         console.log("updated");
+        // next为修改后的com，vnode为修改前的vnode
+        const { next, vnode } = instance;
+        if (next) {
+          next.el = vnode.el;
+          updateComponentPreRender(instance, next);
+        }
         const { proxy } = instance;
         const subTree = instance.render.call(proxy);
         const preSubTree = instance.subTree;
@@ -356,6 +380,12 @@ export function createRenderer(options) {
   return {
     createApp: createAppAPI(render),
   };
+}
+
+function updateComponentPreRender(instance, nextVNode) {
+  instance.vnode = nextVNode;
+  instance.next = null;
+  instance.props = nextVNode.props;
 }
 
 function getSequence(arr: number[]): number[] {
